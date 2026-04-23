@@ -30,14 +30,12 @@ t_zone *create_zone(size_t zone_size)
     zone->blocks = NULL;
     zone->next = NULL;
 
-    /* Create initial free block */
     t_block *initial_block = (t_block *)zone->start;
     initial_block->size = zone->size - sizeof(t_block);
     initial_block->is_free = 1;
     initial_block->next = NULL;
     initial_block->prev = NULL;
     zone->blocks = initial_block;
-
     return zone;
 }
 
@@ -137,7 +135,6 @@ void *malloc(size_t size)
             break;
         zone = zone->next;
     }
-
     if (!block)
     {
         zone = create_zone(zone_size);
@@ -150,7 +147,6 @@ void *malloc(size_t size)
         *zone_list = zone;
         block = find_free_block(zone, size);
     }
-
     if (!block)
     {
         pthread_mutex_unlock(&g_malloc_state.mutex);
@@ -170,7 +166,6 @@ t_zone *find_zone_for_ptr(void *ptr)
     t_zone *zone;
     char *char_ptr = (char *)ptr;
 
-    // Check tiny zones
     zone = g_malloc_state.tiny_zones;
     while (zone)
     {
@@ -181,7 +176,6 @@ t_zone *find_zone_for_ptr(void *ptr)
         zone = zone->next;
     }
 
-    // Check small zones
     zone = g_malloc_state.small_zones;
     while (zone)
     {
@@ -192,7 +186,6 @@ t_zone *find_zone_for_ptr(void *ptr)
         zone = zone->next;
     }
 
-    // Check large zones
     zone = g_malloc_state.large_zones;
     while (zone)
     {
